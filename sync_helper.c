@@ -1,4 +1,4 @@
 #include "sync_helper.h"
 
-// Definition of the global mutex declared in the header
+// def of global mutex declared in  header
 pthread_mutex_t console_mutex = PTHREAD_MUTEX_INITIALIZER; 
