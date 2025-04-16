@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <pthread.h>
 #include "client_handle.h"
+#include "sync_helper.h"
 
 // we read from socket till client disconnects
 // using small buffer to look for '\n'
@@ -43,12 +45,17 @@ void handle_client(int client_socket, int verbose_mode)
 
                 // print to console if verbose on
                 if (verbose_mode) {
+                    // use mutex to prevent output interleaving
+                    pthread_mutex_lock(&console_mutex);
+                    
                     // temp null-terminate for printing
                     char saved_char = buffer[i + 1];
                     buffer[i + 1] = '\0';
                     fprintf(stdout, "%s", &buffer[line_start]);
                     fflush(stdout);
                     buffer[i + 1] = saved_char; // put it back
+                    
+                    pthread_mutex_unlock(&console_mutex);
                 }
 
                 line_start = i + 1;
@@ -68,4 +75,17 @@ void handle_client(int client_socket, int verbose_mode)
     }
 
     close(client_socket);
+}
+
+// thread function that handles a client connection
+void *client_thread(void *arg)
+{
+    client_args_t *args = (client_args_t *)arg;
+    
+    // handle the client using our existing function
+    handle_client(args->client_socket, args->verbose_mode);
+    
+    // free the args that were malloc'd in main
+    free(args);
+    return NULL;
 }
