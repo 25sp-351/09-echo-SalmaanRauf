@@ -9,10 +9,9 @@ typedef struct {
 } server_config_t;
 
 // parse_arguments
-// parses cmd line args. -p changes port, -v enables verbose
+// parses cmd line args. -p changes port, -v enables verbose which just prints it out in our console
 // prints usage and exits if args are bad
 // argc, argv: from main
-// returns: config with port and verbose flag
 server_config_t parse_arguments(int argc, char *argv[]);
 
 #endif
